@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cashBuyFundsDisplay = document.getElementById('cash-buy-funds');
     const shortSellFundsDisplay = document.getElementById('short-sell-funds');
     const totalFundsDisplay = document.getElementById('total-funds');
+    const dailyCostSpan = document.getElementById('daily-cost');
 
     // --- メインの計算・表示更新関数 ---
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -126,8 +127,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const cost = Math.round(acquisitionAmount * dailyInterestRate * days);
         resultStrong.textContent = cost.toLocaleString();
 
+        // デバッグ用ログの追加
+        console.log('Debug: acquisitionAmount =', acquisitionAmount);
+        console.log('Debug: days =', days);
+        console.log('Debug: cost =', cost);
+
         const dailyCost = days > 0 ? Math.round(cost / days) : 0;
         dailyCostSpan.textContent = dailyCost.toLocaleString();
+
+        console.log('Debug: dailyCost =', dailyCost);
     }
 
     // --- flatpickrカレンダーの初期化 ---
