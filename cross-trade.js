@@ -120,29 +120,41 @@ document.addEventListener('DOMContentLoaded', () => {
         // 貸株料の計算
         if (acquisitionAmount <= 0 || days <= 0) {
             resultStrong.textContent = '0';
+            dailyCostSpan.textContent = '0';
             return;
         }
 
-        const dailyInterestRate = ANNUAL_INTEREST_RATE / 365;
-        const cost = Math.round(acquisitionAmount * dailyInterestRate * days);
+        const dailyCost = Math.ceil(acquisitionAmount * (ANNUAL_INTEREST_RATE / 365));
+        dailyCostSpan.textContent = dailyCost.toLocaleString();
+
+        const cost = dailyCost * days;
         resultStrong.textContent = cost.toLocaleString();
 
         // デバッグ用ログの追加
         console.log('Debug: acquisitionAmount =', acquisitionAmount);
         console.log('Debug: days =', days);
         console.log('Debug: cost =', cost);
-
-        const dailyCost = days > 0 ? Math.round(cost / days) : 0;
-        dailyCostSpan.textContent = dailyCost.toLocaleString();
-
         console.log('Debug: dailyCost =', dailyCost);
     }
 
     // --- flatpickrカレンダーの初期化 ---
+    // 月曜始まりのカスタム日本語ロケール
+    flatpickr.localize(flatpickr.l10ns.ja);
+    flatpickr.l10ns.ja.firstDayOfWeek = 1; // 月曜日を週の始まりに設定
+
     const flatpickrConfigBase = {
         locale: 'ja',
         dateFormat: "Y-m-d",
-        // onDayCreate は削除
+        onDayCreate: function(dObj, dStr, fp, dayElem){
+            // dayElem is the DOM element for the day
+            const date = dayElem.dateObj;
+            if (date.getDay() === 6) { // Saturday
+                dayElem.classList.add("saturday");
+            }
+            if (date.getDay() === 0) { // Sunday
+                dayElem.classList.add("sunday");
+            }
+        }
     };
 
     const repayFp = flatpickr(repayDatePickerEl, {

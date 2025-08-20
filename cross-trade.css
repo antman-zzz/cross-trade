@@ -15,3 +15,11 @@
     font-weight: bold; /* 太文字 */
     font-size: 1.1em; /* 少し大きく */
 }
+
+.saturday {
+    background-color: #f0f8ff; /* 薄い青 */
+}
+
+.sunday {
+    background-color: #fff0f5; /* 薄い赤 */
+}
