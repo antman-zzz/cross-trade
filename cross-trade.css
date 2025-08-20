@@ -1,15 +1,17 @@
-body {
-    background-color: #f8f9fa;
+.input-section {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px; /* セクション間の余白 */
+    border: 6px solid #f8d7da; /* 薄い赤色のボーダー、太さを6pxに */
 }
 
-.container {
-    max-width: 1000px;
+.input-section label {
+    font-weight: bold; /* 太文字 */
+    font-size: 1.1em; /* 少し大きく */
 }
 
-.mt-4 {
-    margin-top: 0.7rem !important;
-}
-
-body .mt-5 {
-    margin-top: 1rem !important;
+.input-section input[type="number"],
+.input-section input[type="date"] {
+    font-weight: bold; /* 太文字 */
+    font-size: 1.1em; /* 少し大きく */
 }

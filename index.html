@@ -17,24 +17,17 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-12">
-                        <!-- Top Row: 株価・株数入力 -->
-                        <div class="row mt-3">
-                            <div class="col-md-6 mb-3">
-                                <label for="stock-price" class="form-label">株価（円）</label>
-                                <input type="number" class="form-control" id="stock-price" placeholder="株価を入力">
+                        <div class="input-section">
+                            <div class="row mt-3">
+                                <div class="col-md-6 mb-3">
+                                    <label for="stock-price" class="form-label">株価（円）</label>
+                                    <input type="number" class="form-control" id="stock-price" placeholder="株価を入力">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="share-count" class="form-label">株数</label>
+                                    <input type="number" class="form-control" id="share-count" placeholder="株数を入力">
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="share-count" class="form-label">株数</label>
-                                <input type="number" class="form-control" id="share-count" placeholder="株数を入力">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <!-- Middle Row: 手数料計算 -->
-                        <div>
-                            
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label for="borrow-date-picker" class="form-label">借入日</label>
@@ -45,12 +38,11 @@
                                     <input type="date" id="repay-date-picker" class="form-control">
                                 </div>
                             </div>
+                        </div>
                             
                             <p>権利確定日: <strong id="rights-ex-date-display"></strong></p>
                             <p>現渡日: <strong id="genwatashi-display"></strong></p>
                             <p class="text-muted" style="font-size: 0.8em;">※受渡日が祝日の場合は翌営業日まで手数料がかかります（<a href="https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html" target="_blank">国民の祝日</a>）</p>
-                            
-                        </div>
                     </div>
                 </div>
                 <div class="row mt-4">
