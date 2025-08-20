@@ -1,0 +1,15 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1000px;
+}
+
+.mt-4 {
+    margin-top: 0.7rem !important;
+}
+
+.mt-5 {
+    margin-top: 1rem !important;
+}
