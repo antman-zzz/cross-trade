@@ -125,6 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const dailyInterestRate = ANNUAL_INTEREST_RATE / 365;
         const cost = Math.round(acquisitionAmount * dailyInterestRate * days);
         resultStrong.textContent = cost.toLocaleString();
+
+        const dailyCost = days > 0 ? Math.round(cost / days) : 0;
+        dailyCostSpan.textContent = dailyCost.toLocaleString();
     }
 
     // --- flatpickrカレンダーの初期化 ---
