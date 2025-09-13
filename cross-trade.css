@@ -23,3 +23,8 @@
 .sunday {
     background-color: #fff0f5; /* 薄い赤 */
 }
+
+.holiday {
+    background-color: #ffe4e1; /* 祝日用の色 */
+    color: #d9534f; /* 祝日用の文字色 */
+}

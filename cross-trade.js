@@ -1,11 +1,19 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // --- ユーティリティ関数定義 (すべての処理の前に定義) ---
-    function normalizeDate(date) {
-        const newDate = new Date(date);
-        newDate.setHours(0, 0, 0, 0);
-        return newDate;
+document.addEventListener('DOMContentLoaded', async () => {
+    let holidays = new Map();
+
+    async function loadHolidays() {
+        try {
+            const response = await fetch('https://holidays-jp.github.io/api/v1/date.json');
+            const holidayData = await response.json();
+            holidays = new Map(Object.entries(holidayData));
+            console.log('Holidays loaded:', holidays.size > 0);
+        } catch (error) {
+            console.error('祝日データの取得に失敗しました。', error);
+            alert('祝日データの取得に失敗しました。土日のみを非営業日として計算します。');
+        }
     }
 
+    // --- ユーティリティ関数定義 ---
     function toYYYYMMDD(date) {
         const y = date.getFullYear();
         const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -13,19 +21,29 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${y}-${m}-${d}`;
     }
 
-    function isWeekday(date) {
+    function isBusinessDay(date) {
         const day = date.getDay();
-        return day !== 0 && day !== 6; // 0:日曜, 6:土曜
+        if (day === 0 || day === 6) return false; // 日曜または土曜
+        if (holidays.has(toYYYYMMDD(date))) return false; // 祝日
+        return true;
     }
 
     function addBusinessDays(startDate, numDays) {
         let currentDate = new Date(startDate.getTime());
         let addedDays = 0;
         const step = numDays > 0 ? 1 : -1;
+        const maxIterations = 365; // 無限ループを避けるための安全策
+        let iterations = 0;
+
         while (addedDays < Math.abs(numDays)) {
             currentDate.setDate(currentDate.getDate() + step);
-            if (isWeekday(currentDate)) {
+            if (isBusinessDay(currentDate)) {
                 addedDays++;
+            }
+            iterations++;
+            if (iterations > maxIterations) {
+                console.error("addBusinessDays exceeded max iterations");
+                return new Date(); // エラー発生時は現在の日付を返す
             }
         }
         return currentDate;
@@ -33,34 +51,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getGenwatashibiForMonth(year, month) {
         let lastDay = new Date(year, month + 1, 0);
-        while (!isWeekday(lastDay)) {
+        while (!isBusinessDay(lastDay)) {
             lastDay.setDate(lastDay.getDate() - 1);
         }
         return addBusinessDays(lastDay, -1);
     }
 
-    // --- 初期データ準備 (ハイライトは無効化されているため、この部分は実質的に不要ですが、コードの整合性のため残します) ---
-    const highlightDates = {}; // ハイライトは無効化されているため、このオブジェクトは使用されません
-    const todayForCalc = new Date();
-    for (let i = -12; i < 24; i++) {
-        const targetMonthDate = new Date(todayForCalc.getFullYear(), todayForCalc.getMonth() + i, 1);
-        const year = targetMonthDate.getFullYear();
-        const month = targetMonthDate.getMonth();
-        
-        let lastDay = new Date(year, month + 1, 0);
-        while (!isWeekday(lastDay)) {
-            lastDay.setDate(lastDay.getDate() - 1);
-        }
-        highlightDates[normalizeDate(lastDay).getTime()] = 'last-business-day';
-
-        const genwatashiDay = addBusinessDays(lastDay, -1);
-        highlightDates[normalizeDate(genwatashiDay).getTime()] = 'genwatashi-day';
-    }
+    // --- アプリケーションのメイン処理 ---
+    await loadHolidays(); // 祝日データを待ってからアプリを初期化
 
     // --- DOM要素の取得 ---
     const stockPriceInput = document.getElementById('stock-price');
     const shareCountInput = document.getElementById('share-count');
-    // const acquisitionAmountSpan = document.getElementById('acquisition-amount'); // 削除
     const borrowDatePickerEl = document.getElementById('borrow-date-picker');
     const repayDatePickerEl = document.getElementById('repay-date-picker');
     const rightsExDateDisplay = document.getElementById('rights-ex-date-display');
@@ -71,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const shortSellFundsDisplay = document.getElementById('short-sell-funds');
     const totalFundsDisplay = document.getElementById('total-funds');
     const dailyCostSpan = document.getElementById('daily-cost');
+    const newPositionPossibleDateDisplay = document.getElementById('new-position-possible-date');
 
     // --- メインの計算・表示更新関数 ---
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -87,18 +90,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const actualRepaySettlementDate = addBusinessDays(repayTradeDate, 2);
 
-        // 権利確定日の計算と表示
         const lastDayOfMonth = new Date(repayTradeDate.getFullYear(), repayTradeDate.getMonth() + 1, 0);
         let lastBusinessDayOfMonth = new Date(lastDayOfMonth.getTime());
-        while (!isWeekday(lastBusinessDayOfMonth)) {
+        while (!isBusinessDay(lastBusinessDayOfMonth)) {
             lastBusinessDayOfMonth.setDate(lastBusinessDayOfMonth.getDate() - 1);
         }
         const rightsExDate = addBusinessDays(lastBusinessDayOfMonth, -2);
         rightsExDateDisplay.textContent = rightsExDate.toLocaleDateString('ja-JP');
 
-        // 現渡日（権利確定日の翌営業日）の表示
+        const newPositionPossibleDate = addBusinessDays(rightsExDate, -14);
+        newPositionPossibleDateDisplay.textContent = newPositionPossibleDate.toLocaleDateString('ja-JP');
+
         const genwatashiDayFromRightsExDate = addBusinessDays(rightsExDate, 1);
-        genwatashiDisplay.innerHTML = `${genwatashiDayFromRightsExDate.toLocaleDateString('ja-JP')}<br>（実際の返済受渡日: ${actualRepaySettlementDate.toLocaleDateString('ja-JP')}）`;
+        genwatashiDisplay.innerHTML = `${genwatashiDayFromRightsExDate.toLocaleDateString('ja-JP')}<br>（実際の返済受渡日: ${actualRepaySettlementDate.toLocaleDateString('ja-JP')}） <a href="https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html" target="_blank" style="font-size: 0.8em; text-decoration: none;">国民の祝日</a>`;
 
         const days = (actualRepaySettlementDate.getTime() - borrowDate.getTime()) / MS_PER_DAY;
         daysSpan.textContent = days >= 0 ? Math.round(days) : '0';
@@ -106,9 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const stockPrice = parseFloat(stockPriceInput.value) || 0;
         const shareCount = parseFloat(shareCountInput.value) || 0;
         const acquisitionAmount = stockPrice * shareCount;
-        // acquisitionAmountSpan.textContent = acquisitionAmount.toLocaleString(); // 削除
 
-        // --- 必要資金の計算と表示 ---
         const requiredCashBuyFunds = acquisitionAmount;
         const requiredShortSellFunds = Math.max(acquisitionAmount * 0.31, 300000);
         const totalRequiredFunds = requiredCashBuyFunds + requiredShortSellFunds;
@@ -117,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         shortSellFundsDisplay.textContent = requiredShortSellFunds.toLocaleString();
         totalFundsDisplay.textContent = totalRequiredFunds.toLocaleString();
 
-        // 貸株料の計算
         if (acquisitionAmount <= 0 || days <= 0) {
             resultStrong.textContent = '0';
             dailyCostSpan.textContent = '0';
@@ -129,31 +130,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const cost = dailyCost * days;
         resultStrong.textContent = cost.toLocaleString();
-
-        // デバッグ用ログの追加
-        console.log('Debug: acquisitionAmount =', acquisitionAmount);
-        console.log('Debug: days =', days);
-        console.log('Debug: cost =', cost);
-        console.log('Debug: dailyCost =', dailyCost);
     }
 
     // --- flatpickrカレンダーの初期化 ---
-    // 月曜始まりのカスタム日本語ロケール
     flatpickr.localize(flatpickr.l10ns.ja);
-    flatpickr.l10ns.ja.firstDayOfWeek = 1; // 月曜日を週の始まりに設定
+    flatpickr.l10ns.ja.firstDayOfWeek = 1;
 
     const flatpickrConfigBase = {
         locale: 'ja',
         dateFormat: "Y-m-d",
         onDayCreate: function(dObj, dStr, fp, dayElem){
-            // dayElem is the DOM element for the day
             const date = dayElem.dateObj;
-            if (date.getDay() === 6) { // Saturday
-                dayElem.classList.add("saturday");
+            const dateStrYYYYMMDD = toYYYYMMDD(date);
+            if (holidays.has(dateStrYYYYMMDD)) {
+                dayElem.classList.add("holiday");
+                dayElem.title = holidays.get(dateStrYYYYMMDD);
             }
-            if (date.getDay() === 0) { // Sunday
-                dayElem.classList.add("sunday");
-            }
+            if (date.getDay() === 6) dayElem.classList.add("saturday");
+            if (date.getDay() === 0) dayElem.classList.add("sunday");
         }
     };
 
@@ -175,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 初期値設定とイベントリスナー ---
+    // --- イベントリスナーと初期値設定 ---
     stockPriceInput.addEventListener('input', updateAllCalculations);
     shareCountInput.addEventListener('input', updateAllCalculations);
 
