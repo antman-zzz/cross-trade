@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         newPositionPossibleDateDisplay.textContent = newPositionPossibleDate.toLocaleDateString('ja-JP');
 
         const genwatashiDayFromRightsExDate = addBusinessDays(rightsExDate, 1);
-        genwatashiDisplay.innerHTML = `${genwatashiDayFromRightsExDate.toLocaleDateString('ja-JP')}<br>（実際の返済受渡日: ${actualRepaySettlementDate.toLocaleDateString('ja-JP')}）`;
+        genwatashiDisplay.innerHTML = `${genwatashiDayFromRightsExDate.toLocaleDateString('ja-JP')}<br>（実際の返済受渡日: ${actualRepaySettlementDate.toLocaleDateString('ja-JP')}） <a href="https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html" target="_blank" style="font-size: 0.8em; text-decoration: none;">国民の祝日</a>`;
 
         const days = (actualRepaySettlementDate.getTime() - borrowDate.getTime()) / MS_PER_DAY;
         daysSpan.textContent = days >= 0 ? Math.round(days) : '0';

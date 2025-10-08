@@ -1,0 +1,30 @@
+.input-section {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px; /* セクション間の余白 */
+    border: 6px solid #f8d7da; /* 薄い赤色のボーダー、太さを6pxに */
+}
+
+.input-section label {
+    font-weight: bold; /* 太文字 */
+    font-size: 1.1em; /* 少し大きく */
+}
+
+.input-section input[type="number"],
+.input-section input[type="date"] {
+    font-weight: bold; /* 太文字 */
+    font-size: 1.1em; /* 少し大きく */
+}
+
+.saturday {
+    background-color: #f0f8ff; /* 薄い青 */
+}
+
+.sunday {
+    background-color: #fff0f5; /* 薄い赤 */
+}
+
+.holiday {
+    background-color: #ffe4e1; /* 祝日用の色 */
+    color: #d9534f; /* 祝日用の文字色 */
+}
