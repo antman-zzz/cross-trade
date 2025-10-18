@@ -79,6 +79,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
     const ANNUAL_INTEREST_RATE = 0.039;
 
+    function getLimitRange(basePrice) {
+        if (basePrice < 100) return 30;
+        if (basePrice < 200) return 50;
+        if (basePrice < 500) return 80;
+        if (basePrice < 700) return 100;
+        if (basePrice < 1000) return 150;
+        if (basePrice < 1500) return 300;
+        if (basePrice < 2000) return 400;
+        if (basePrice < 3000) return 500;
+        if (basePrice < 5000) return 700;
+        if (basePrice < 7000) return 1000;
+        if (basePrice < 10000) return 1500;
+        if (basePrice < 15000) return 3000;
+        if (basePrice < 20000) return 4000;
+        if (basePrice < 30000) return 5000;
+        if (basePrice < 50000) return 7000;
+        if (basePrice < 70000) return 10000;
+        if (basePrice < 100000) return 15000;
+        if (basePrice < 150000) return 30000;
+        if (basePrice < 200000) return 40000;
+        if (basePrice < 300000) return 50000;
+        if (basePrice < 500000) return 70000;
+        if (basePrice < 700000) return 100000;
+        if (basePrice < 1000000) return 150000;
+        if (basePrice < 1500000) return 300000;
+        if (basePrice < 2000000) return 400000;
+        if (basePrice < 3000000) return 500000;
+        if (basePrice < 5000000) return 700000;
+        if (basePrice < 7000000) return 1000000;
+        if (basePrice < 10000000) return 1500000;
+        if (basePrice < 15000000) return 3000000;
+        if (basePrice < 20000000) return 4000000;
+        if (basePrice < 30000000) return 5000000;
+        if (basePrice < 50000000) return 7000000;
+        return 10000000; // 50,000,000円以上
+    }
+
     function updateAllCalculations() {
         const borrowDateStr = borrowDatePickerEl.value;
         const repayTradeDateStr = repayDatePickerEl.value;
@@ -109,7 +146,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const stockPrice = parseFloat(stockPriceInput.value) || 0;
         const shareCount = parseFloat(shareCountInput.value) || 0;
-        const acquisitionAmount = stockPrice * shareCount;
+        const limitRange = getLimitRange(stockPrice);
+        const acquisitionAmount = (stockPrice + limitRange) * shareCount;
 
         const requiredCashBuyFunds = acquisitionAmount;
         const requiredShortSellFunds = Math.max(acquisitionAmount * 0.31, 300000);
