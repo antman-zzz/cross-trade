@@ -211,7 +211,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     stockPriceInput.addEventListener('input', updateAllCalculations);
     shareCountInput.addEventListener('input', updateAllCalculations);
 
-    const today = new Date();
+    let today = new Date();
+
+    // 日本時間18時以降であれば、日付を翌日に設定
+    const now = new Date();
+    const jstOffset = 9 * 60; // JST is UTC+9
+    const localOffset = now.getTimezoneOffset(); // Local timezone offset in minutes
+    const jstTime = new Date(now.getTime() + (jstOffset + localOffset) * 60 * 1000);
+
+    if (jstTime.getHours() >= 18) {
+        today.setDate(today.getDate() + 1);
+    }
+
+    // 土日祝日の場合は次の営業日に設定
+    while (!isBusinessDay(today)) {
+        today.setDate(today.getDate() + 1);
+    }
+
     borrowFp.setDate(today, false);
     const initialGenwatashi = getGenwatashibiForMonth(today.getFullYear(), today.getMonth());
     repayFp.setDate(initialGenwatashi, true);
